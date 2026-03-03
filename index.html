@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Privacy Screen Debug</title>
+<title>Full Dark Privacy Mode</title>
 
 <style>
 body {
@@ -13,60 +13,43 @@ body {
   justify-content: center;
   flex-direction: column;
   font-family: Arial;
-  transition: filter 0.3s ease;
+  transition: filter 0.3s ease, background 0.3s ease;
   background: white;
 }
 
-.mask {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  background: linear-gradient(
-    to right,
-    rgba(0,0,0,0.6),
-    transparent 30%,
-    transparent 70%,
-    rgba(0,0,0,0.6)
-  );
-  opacity: 0;
-  transition: opacity 0.3s ease;
+#debug {
+  margin-top: 10px;
+  font-size: 18px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>🔐 Tilt Phone</h2>
-<p id="debug">Waiting for sensor...</p>
-
-<div class="mask" id="mask"></div>
+<h2>🔐 Private Content</h2>
+<p id="debug">Tilt phone sideways</p>
 
 <script>
-const mask = document.getElementById("mask");
 const debug = document.getElementById("debug");
-const threshold = 15;
+const threshold = 10;
 
 function handleOrientation(event) {
   let gamma = event.gamma;
-
-  debug.innerText = "Gamma: " + gamma;
 
   if (gamma === null) {
     debug.innerText = "Sensor not available";
     return;
   }
 
+  debug.innerText = "Gamma: " + gamma.toFixed(2);
+
   let tilt = Math.abs(gamma);
 
   if (tilt > threshold) {
-    document.body.style.filter = "brightness(0.5)";
-    mask.style.opacity = "1";
+    // FULL DARK MODE
+    document.body.style.filter = "brightness(0.2)";
   } else {
     document.body.style.filter = "brightness(1)";
-    mask.style.opacity = "0";
   }
 }
 
@@ -76,15 +59,10 @@ function enableSensor() {
       .then(response => {
         if (response === "granted") {
           window.addEventListener("deviceorientation", handleOrientation);
-          debug.innerText = "Sensor enabled";
-        } else {
-          debug.innerText = "Permission denied";
         }
-      })
-      .catch(console.error);
+      });
   } else {
     window.addEventListener("deviceorientation", handleOrientation);
-    debug.innerText = "Sensor enabled";
   }
 }
 
