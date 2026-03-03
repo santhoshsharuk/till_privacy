@@ -2,71 +2,48 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Full Dark Privacy Mode</title>
-
+<title>Sensor Test</title>
 <style>
-body {
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  font-family: Arial;
-  transition: filter 0.3s ease, background 0.3s ease;
-  background: white;
-}
-
-#debug {
-  margin-top: 10px;
-  font-size: 18px;
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:24px;
+  font-family:Arial;
 }
 </style>
 </head>
-
 <body>
 
-<h2>🔐 Private Content</h2>
-<p id="debug">Tilt phone sideways</p>
+<div id="value">Click to Enable Sensor</div>
 
 <script>
-const debug = document.getElementById("debug");
-const threshold = 10;
+const value = document.getElementById("value");
 
 function handleOrientation(event) {
-  let gamma = event.gamma;
-
-  if (gamma === null) {
-    debug.innerText = "Sensor not available";
-    return;
-  }
-
-  debug.innerText = "Gamma: " + gamma.toFixed(2);
-
-  let tilt = Math.abs(gamma);
-
-  if (tilt > threshold) {
-    // FULL DARK MODE
-    document.body.style.filter = "brightness(0.2)";
-  } else {
-    document.body.style.filter = "brightness(1)";
-  }
+  value.innerText = "Gamma: " + event.gamma;
 }
 
-function enableSensor() {
+function enable() {
   if (typeof DeviceOrientationEvent.requestPermission === "function") {
     DeviceOrientationEvent.requestPermission()
-      .then(response => {
-        if (response === "granted") {
+      .then(res => {
+        if (res === "granted") {
           window.addEventListener("deviceorientation", handleOrientation);
+          value.innerText = "Sensor Enabled";
+        } else {
+          value.innerText = "Permission Denied";
         }
       });
   } else {
     window.addEventListener("deviceorientation", handleOrientation);
+    value.innerText = "Sensor Enabled";
   }
 }
 
-document.body.addEventListener("click", enableSensor);
+document.body.addEventListener("click", enable);
 </script>
 
 </body>
