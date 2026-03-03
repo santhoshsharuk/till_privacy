@@ -2,48 +2,77 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sensor Test</title>
+<title>Privacy Tilt Demo</title>
+
 <style>
-body{
-  margin:0;
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:24px;
-  font-family:Arial;
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-family: Arial, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: white;
+  color: black;
+}
+
+h1 {
+  margin-bottom: 10px;
+}
+
+#gammaValue {
+  font-size: 18px;
+  opacity: 0.7;
 }
 </style>
 </head>
+
 <body>
 
-<div id="value">Click to Enable Sensor</div>
+<h1>🔐 Privacy Screen Demo</h1>
+<p>Tilt phone left or right beyond 35°</p>
+<div id="gammaValue">Gamma: 0</div>
 
 <script>
-const value = document.getElementById("value");
+const DARK_ANGLE = 35;
+const gammaDisplay = document.getElementById("gammaValue");
 
 function handleOrientation(event) {
-  value.innerText = "Gamma: " + event.gamma;
-}
+  let gamma = event.gamma;
 
-function enable() {
-  if (typeof DeviceOrientationEvent.requestPermission === "function") {
-    DeviceOrientationEvent.requestPermission()
-      .then(res => {
-        if (res === "granted") {
-          window.addEventListener("deviceorientation", handleOrientation);
-          value.innerText = "Sensor Enabled";
-        } else {
-          value.innerText = "Permission Denied";
-        }
-      });
+  if (gamma === null) return;
+
+  gammaDisplay.innerText = "Gamma: " + gamma.toFixed(2);
+
+  if (gamma >= DARK_ANGLE || gamma <= -DARK_ANGLE) {
+    document.body.style.backgroundColor = "black";
+    document.body.style.color = "white";
   } else {
-    window.addEventListener("deviceorientation", handleOrientation);
-    value.innerText = "Sensor Enabled";
+    document.body.style.backgroundColor = "white";
+    document.body.style.color = "black";
   }
 }
 
-document.body.addEventListener("click", enable);
+function enableSensor() {
+  if (typeof DeviceOrientationEvent.requestPermission === "function") {
+    DeviceOrientationEvent.requestPermission()
+      .then(response => {
+        if (response === "granted") {
+          window.addEventListener("deviceorientation", handleOrientation);
+        } else {
+          alert("Motion permission denied");
+        }
+      })
+      .catch(console.error);
+  } else {
+    window.addEventListener("deviceorientation", handleOrientation);
+  }
+}
+
+// iPhone requires click
+document.body.addEventListener("click", enableSensor);
 </script>
 
 </body>
