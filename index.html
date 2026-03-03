@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Screen Debug</title>
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  font-family: Arial;
+  transition: filter 0.3s ease;
+  background: white;
+}
+
+.mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    rgba(0,0,0,0.6),
+    transparent 30%,
+    transparent 70%,
+    rgba(0,0,0,0.6)
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🔐 Tilt Phone</h2>
+<p id="debug">Waiting for sensor...</p>
+
+<div class="mask" id="mask"></div>
+
+<script>
+const mask = document.getElementById("mask");
+const debug = document.getElementById("debug");
+const threshold = 15;
+
+function handleOrientation(event) {
+  let gamma = event.gamma;
+
+  debug.innerText = "Gamma: " + gamma;
+
+  if (gamma === null) {
+    debug.innerText = "Sensor not available";
+    return;
+  }
+
+  let tilt = Math.abs(gamma);
+
+  if (tilt > threshold) {
+    document.body.style.filter = "brightness(0.5)";
+    mask.style.opacity = "1";
+  } else {
+    document.body.style.filter = "brightness(1)";
+    mask.style.opacity = "0";
+  }
+}
+
+function enableSensor() {
+  if (typeof DeviceOrientationEvent.requestPermission === "function") {
+    DeviceOrientationEvent.requestPermission()
+      .then(response => {
+        if (response === "granted") {
+          window.addEventListener("deviceorientation", handleOrientation);
+          debug.innerText = "Sensor enabled";
+        } else {
+          debug.innerText = "Permission denied";
+        }
+      })
+      .catch(console.error);
+  } else {
+    window.addEventListener("deviceorientation", handleOrientation);
+    debug.innerText = "Sensor enabled";
+  }
+}
+
+document.body.addEventListener("click", enableSensor);
+</script>
+
+</body>
+</html>
